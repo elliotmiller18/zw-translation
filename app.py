@@ -1,12 +1,13 @@
 from openai import OpenAI
 import os
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 
 app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index.html')
+    return send_from_directory('static','index.html')
+    #return render_template('index.html')
 
 @app.route('/send_sentence', methods=['POST'])
 def process_sentence():
