@@ -11,18 +11,32 @@ def index():
 @app.route('/send_sentence', methods=['POST'])
 def process_sentence():
     if not request.is_json:
-        return jsonify({"Error"})
+        return jsonify({"error":"The body is not a JSON"}), 400
     data = request.get_json()
 
+    missing_arguments = []
+
     original_language = data.get("original_language")
+    if original_language is None:
+        missing_arguments.append("original language")
     target_language = data.get("target_language")
+    if target_language is None:
+        missing_arguments.append("target language")
     original_sentence = data.get("original_sentence")
+    if original_sentence is None:
+        missing_arguments.append("original sentence")
     user_translated_sentence = data.get("user_translated_sentence")
+    if user_translated_sentence is None:
+        missing_arguments.append("user translated sentence")
     proficiency =  data.get("proficiency")
+    if proficiency is None:
+        missing_arguments.append("proficiency")
+
+    if len(missing_arguments) > 0:
+        return jsonify({"error":f"Request missing {", ".join(missing_arguments)}"}), 400
 
     content = f"Hello, I am a {proficiency} language learner trying to practice translating sentences between {original_language} and {target_language}. Given the {original_language} sentence \"{original_sentence}\", is the translation \"{user_translated_sentence}\" correct? If so, please only respond with the phrase \"correct\" If not, please give a comma separated list of feedback with the first entry being the word incorrect. This response is going to be processed by python code so it is important that this format is maintained. Thank you very much."
 
-    # Hello, I am (a/an) <proficiency> language learner trying to practice translating sentences between <original_language> and <target_language>. Given the <original_language> sentence “<sentence>”, is the translation “<user_translated_sentence>” correct? If so, please only respond with the phrase “no notes.” If not, please give a comma separated list of feedback. This response is going to be processed by python code so it is important that this format is maintained. Thank you very much.
     response = openai_api_call(content)
     return jsonify(response), 200
 
@@ -41,8 +55,6 @@ def openai_api_call(content):
     )
 
     return completion.choices[0].message.content;
-
-#print(os.getenv("OPENAI_API_KEY"))
 
 if __name__ == '__main__':
     #TODO: remove debug
