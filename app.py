@@ -1,13 +1,17 @@
 from openai import OpenAI
 import os
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="dist")
 
 @app.route('/', methods=['GET'])
-def index():
-    return send_from_directory('static','index.html')
-    #return render_template('index.html')
+def serve_index():
+    return send_from_directory('dist','index.html')
+
+@app.route('/<path:path>', methods=['GET'])
+def serve_static_files(path):
+    # Serve static files like bundle.js or styles.css
+    return send_from_directory('dist', path)
 
 @app.route('/send_sentence', methods=['POST'])
 def process_sentence():
