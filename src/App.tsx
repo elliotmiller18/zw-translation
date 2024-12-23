@@ -31,7 +31,7 @@ const Nothing = () => {
 
 const Dropdown = <T extends string>({options, selectedOption, onOptionSelect, label}: DropdownProps<T>) => {
     return (<div>
-            <label htmlFor="languages">{label}</label>
+            <label htmlFor="languages">{label} </label>
             <select 
             // value={selectedOption ?? ""} onChange={(e) => onOptionSelect(e.target.value as T)}>
             value={selectedOption ?? ""}>
