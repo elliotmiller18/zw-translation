@@ -56,14 +56,25 @@ def process_sentence():
     if len(missing_arguments) > 0:
         return jsonify({"error":f"Request missing {", ".join(missing_arguments)}"}), 400
 
-    content = f"Hello, I am a {proficiency} language learner trying to practice translating sentences between {originalLanguage} and {targetLanguage}. Given the {originalLanguage} sentence \"{originalSentence}\", is the translation \"{userTranslatedSentence}\" correct? If so, please only respond with the phrase \"correct\" If not, please give a comma separated list of feedback with the first entry being the word incorrect. This response is going to be processed by python code so it is important that this format is maintained. Thank you very much."
+    content = f"Hello, I am a {proficiency} language learner trying to practice translating sentences between {originalLanguage} and {targetLanguage}. 
+                Given the {originalLanguage} sentence \"{originalSentence}\" and the translation \"{userTranslatedSentence}\", 
+                can you give me the following information as a comma separated list? The list should start with the string 
+                \"correct\" or \"incorrect\" depending on if the translation is correct. Next there should be the 
+                correct translation, if the provided translation is correct please simply reproduce the provided translation. 
+                After that, if the translation is incorrect, please provide detailed feedback that could 
+                help a language learner better understand vocab and grammar. This response is going 
+                to be processed by python code using the .split(\",\") function so it is important that this format is maintained exactly.
+                The list must be a minimum of 2 entries long if there is no feedback, the two being correctness and the original sentence Thank you very much."
 
     #TODO: remove this is for debugging
-    print(content)
-    return jsonify({"response":content})
+    #print(content)
+    #return jsonify({"response":content})
 
     response = openai_api_call(content)
-    return jsonify({"response":response}), 200
+    feedback = response.split(",").pop(0)
+    correct = True if feedback[0] == "correct" else False
+
+    return jsonify({"response":response, "correct":correct, "feedback":feedback[2:]}), 200
 
 
 def openai_api_call(content):
